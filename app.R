@@ -105,14 +105,19 @@ ui <- dashboardPage(header, sidebar, body)
 server <- function(input, output) {
   
   # Create a subset of data filtering for selected title types ------
-  LAPD_subset <- reactive({
+  LAPD_subset_COVID <- reactive({
     req(input$selected_hood) # ensure availablity of value before proceeding
-    filter(LAPD, `Area Name` %in% input$selected_hood)
+    filter(LAPD, `Area Name` %in% input$selected_hood & week %in% c(9:11))
+  })
+  
+  LAPD_subset_PROTEST <- reactive({
+    req(input$selected_hood) # ensure availablity of value before proceeding
+    filter(LAPD, `Area Name` %in% input$selected_hood & week %in% c(21:23))
   })
 
   # Covid tab --------------------------------------------------------
   output$covid_time <- renderPlotly({
-    ggplot(data = LAPD_subset(), aes_string(x = 'date', group=input$group, color=input$group)) +
+    ggplot(data = LAPD_subset_COVID(), aes_string(x = 'date', group=input$group, color=input$group)) +
       geom_point(stat='count') +
       geom_line(stat='count', alpha=0.3) +
       geom_text(aes(label=stat(count)), stat='count', nudge_y=5) +
@@ -124,7 +129,7 @@ server <- function(input, output) {
   })
   
   output$covid_group <- renderPlotly({
-    ggplot(data = LAPD_subset(), aes_string(x = input$group)) +
+    ggplot(data = LAPD_subset_COVID(), aes_string(x = input$group)) +
       geom_bar() +
       geom_text(aes(label=stat(count)), stat='count', nudge_y=100) +
       labs(x = input$group,
@@ -135,7 +140,7 @@ server <- function(input, output) {
   })
   
   output$covid_offense <- renderPlotly({
-    ggplot(data=LAPD_subset(), aes(x="",fill=`Charge Group Description`)) +
+    ggplot(data=LAPD_subset_COVID(), aes(x="",fill=`Charge Group Description`)) +
       geom_bar(width=1) +
       coord_polar("y", start=0) +
       labs(x = 'Percentage of Arrests',
@@ -145,7 +150,7 @@ server <- function(input, output) {
   # Protest tab -------------------------------------------------------
   
   output$protest_time <- renderPlotly({
-    ggplot(data = LAPD_subset(), aes_string(x = 'date', group=input$group, color=input$group)) +
+    ggplot(data = LAPD_subset_PROTEST(), aes_string(x = 'date', group=input$group, color=input$group)) +
       geom_point(stat='count') +
       geom_line(stat='count', alpha=0.3) +
       geom_text(aes(label=stat(count)), stat='count', nudge_y=5) +
@@ -157,7 +162,7 @@ server <- function(input, output) {
   })
   
   output$protest_group <- renderPlotly({
-    ggplot(data = LAPD_subset(), aes_string(x = input$group)) +
+    ggplot(data = LAPD_subset_PROTEST(), aes_string(x = input$group)) +
       geom_bar() +
       geom_text(aes(label=stat(count)), stat='count', nudge_y=100) +
       labs(x = input$group,
@@ -168,7 +173,7 @@ server <- function(input, output) {
   })
   
   output$protest_offense <- renderPlotly({
-    ggplot(data=LAPD_subset(), aes(x="",fill=`Charge Group Description`)) +
+    ggplot(data=LAPD_subset_PROTEST(), aes(x="",fill=`Charge Group Description`)) +
       geom_bar(width=1) +
       coord_polar("y", start=0) +
       labs(x = 'Percentage of Arrests',
