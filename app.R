@@ -8,6 +8,7 @@ library(tools)
 library(shinyWidgets)
 library(tidyverse)
 library(bslib)
+library(plotly)
 
 LAPD <- read_csv('LAPD_updated.csv')
 
@@ -62,7 +63,7 @@ body <- dashboardBody(tabItems(
             tabBox(title = "Plot",
                    width = 12,
                    tabPanel("Over time", plotlyOutput("covid_time")),
-                   tabPanel("Grouped", plotlyOutput("covid_group")),
+                   tabPanel("Total", plotlyOutput("covid_group")),
                    tabPanel("By Offense", plotlyOutput("covid_offense")))
           )
           
@@ -87,7 +88,7 @@ body <- dashboardBody(tabItems(
             tabBox(title = "Plot",
                    width = 12,
                    tabPanel("Over time", plotlyOutput("protest_time")),
-                   tabPanel("Grouped", plotlyOutput("protest_group")),
+                   tabPanel("Total", plotlyOutput("protest_group")),
                    tabPanel("By Offense", plotlyOutput("protest_offense")))
           )
           
@@ -140,11 +141,14 @@ server <- function(input, output) {
   })
   
   output$covid_offense <- renderPlotly({
-    ggplot(data=LAPD_subset_COVID(), aes(x="",fill=`Charge Group Description`)) +
-      geom_bar(width=1) +
-      coord_polar("y", start=0) +
-      labs(x = 'Percentage of Arrests',
-           title = 'Breakdown of Offenses')
+    vals <- LAPD_subset_COVID() %>% group_by(`Charge Group Description`) %>% summarize(count=n())
+    fig <- plot_ly(labels = ~vals$`Charge Group Description`, values = vals$count, type = 'pie')
+    fig <- fig %>% layout(title = 'Arrests by Offense Type',
+                          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+    
+    fig
+   
   })
   
   # Protest tab -------------------------------------------------------
@@ -173,11 +177,13 @@ server <- function(input, output) {
   })
   
   output$protest_offense <- renderPlotly({
-    ggplot(data=LAPD_subset_PROTEST(), aes(x="",fill=`Charge Group Description`)) +
-      geom_bar(width=1) +
-      coord_polar("y", start=0) +
-      labs(x = 'Percentage of Arrests',
-           title = 'Breakdown of Offenses')
+    vals <- LAPD_subset_PROTEST() %>% group_by(`Charge Group Description`) %>% summarize(count=n())
+    fig <- plot_ly(labels = ~vals$`Charge Group Description`, values = vals$count, type = 'pie')
+    fig <- fig %>% layout(title = 'Arrests by Offense Type',
+                          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+    
+    fig
   })
   
 }
