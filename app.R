@@ -51,12 +51,12 @@ body <- dashboardBody(tabItems(
   # Plot page ----------------------------------------------
   tabItem("covid",
           
-          # Input and Value Boxes ----------------------------------------------
-          # fluidRow(
-          #   infoBoxOutput("mass"),
-          #   valueBoxOutput("height"),
-          #   valueBoxOutput("height")
-          # ),
+          #Input and Value Boxes ----------------------------------------------
+          fluidRow(
+            infoBoxOutput("covid_day"),
+            valueBoxOutput("covid_val1"),
+            valueBoxOutput("covid_val2")
+          ),
           
           # Plot ----------------------------------------------
           fluidRow(
@@ -150,6 +150,23 @@ server <- function(input, output) {
   
   fluidPage(
     box(title = "Selected Character Stats", DT::dataTableOutput("table"), width = 12))
+  
+  # COVID info boxes ----------------------------------------------
+  output$covid_day <- renderInfoBox({
+    infoBox("Date",subtitle="LAPD issues cite and release protocol the first week of March, 2020", icon = icon("calendar-day"), color = "navy")
+  })
+  
+  output$covid_val1 <- renderValueBox({
+    val <-LAPD_subset_COVID() %>%filter(week<10)%>% summarize(count=n())
+    
+    valueBox(val,"Arrests the month before cite and release", icon = icon("siren-on"), color = "maroon")
+  })
+  
+  output$covid_val2 <- renderValueBox({
+    val <-LAPD_subset_COVID() %>%filter(week>10)%>% summarize(count=n())
+    
+    valueBox(val,"Arrests the month after cite and release", icon = icon("viruses"), color = "olive")
+  })
   
   # COVID data table  ----------------------------------------------
   output$covid_table <- DT::renderDataTable({
