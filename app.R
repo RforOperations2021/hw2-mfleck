@@ -64,7 +64,8 @@ body <- dashboardBody(tabItems(
                    width = 12,
                    tabPanel("Over time", plotlyOutput("covid_time")),
                    tabPanel("Total", plotlyOutput("covid_group")),
-                   tabPanel("By Offense", plotlyOutput("covid_offense")))
+                   tabPanel("By Offense", plotlyOutput("covid_offense")),
+                   tabPanel("Table", DT::dataTableOutput("covid_table")))
           )
           
           # Data table ----------------------------------------
@@ -74,7 +75,7 @@ body <- dashboardBody(tabItems(
           # 
   ),
   
-  # Data Table Page ----------------------------------------------
+  
   tabItem("protest",
           # Input and Value Boxes ----------------------------------------------
           # fluidRow(
@@ -89,13 +90,9 @@ body <- dashboardBody(tabItems(
                    width = 12,
                    tabPanel("Over time", plotlyOutput("protest_time")),
                    tabPanel("Total", plotlyOutput("protest_group")),
-                   tabPanel("By Offense", plotlyOutput("protest_offense")))
+                   tabPanel("By Offense", plotlyOutput("protest_offense")),
+                   tabPanel("Table",  DT::dataTableOutput("protest_table")))
           )
-          
-          # Data table ----------------------------------------
-          
-          # fluidPage(
-          #   box(title = "Arrests during protest weeks", DT::dataTableOutput("protest_table"), width = 12))
   )
 )
 )
@@ -151,6 +148,14 @@ server <- function(input, output) {
    
   })
   
+  fluidPage(
+    box(title = "Selected Character Stats", DT::dataTableOutput("table"), width = 12))
+  
+  # COVID data table  ----------------------------------------------
+  output$covid_table <- DT::renderDataTable({
+    LAPD_subset_COVID()[,c(5,7,9:11,13:16,28)] 
+  })
+  
   # Protest tab -------------------------------------------------------
   
   output$protest_time <- renderPlotly({
@@ -184,6 +189,11 @@ server <- function(input, output) {
                           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
     
     fig
+  })
+  
+  # Protest data table  ----------------------------------------------
+  output$protest_table <- DT::renderDataTable({
+    LAPD_subset_PROTEST()[,c(5,7,9:11,13:16,28)] 
   })
   
 }
