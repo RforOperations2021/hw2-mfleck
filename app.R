@@ -68,21 +68,16 @@ body <- dashboardBody(tabItems(
                    tabPanel("Table", DT::dataTableOutput("covid_table")))
           )
           
-          # Data table ----------------------------------------
-          
-          # fluidPage(
-          #   box(title = "Arrests during early covid weeks", DT::dataTableOutput("covid_table"), width = 12))
-          # 
   ),
   
   
   tabItem("protest",
           # Input and Value Boxes ----------------------------------------------
-          # fluidRow(
-          #   infoBoxOutput("mass"),
-          #   valueBoxOutput("height"),
-          #   valueBoxOutput("height")
-          # ),
+           fluidRow(
+             infoBoxOutput("protest_day"),
+             valueBoxOutput("protest_val1"),
+             valueBoxOutput("protest_val2")
+           ),
           
           # Plot ----------------------------------------------
           fluidRow(
@@ -211,6 +206,23 @@ server <- function(input, output) {
   # Protest data table  ----------------------------------------------
   output$protest_table <- DT::renderDataTable({
     LAPD_subset_PROTEST()[,c(5,7,9:11,13:16,28)] 
+  })
+  
+  # Protest info boxes ----------------------------------------------
+  output$protest_day <- renderInfoBox({
+    infoBox("Date",subtitle="George Floyd was murdered at the hands of the police on May 25, 2020", icon = icon("calendar-day"), color = "navy")
+  })
+  
+  output$protest_val1 <- renderValueBox({
+    val <-LAPD_subset_PROTEST() %>%filter(week>21 & Charge == '463(A)PC')%>% summarize(count=n())
+    
+    valueBox(val,"Arrests for looting (463(A)PC) in the two weeks following the death of George Floyd", color = "maroon")
+  })
+  
+  output$protest_val2 <- renderValueBox({
+    val <-LAPD_subset_PROTEST() %>%filter(week>21 & Charge == '8.78LAAC')%>% summarize(count=n())
+    
+    valueBox(val,"Arrests for curfew violations in the two weeks following the death of George Floyd", color = "olive")
   })
   
 }
