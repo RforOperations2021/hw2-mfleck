@@ -1,0 +1,12 @@
+name: hw2-mfleck
+title: hw2-mfleck
+username:
+account: marycfleck
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3745540
+bundleId: 4307799
+url: https://marycfleck.shinyapps.io/hw2-mfleck/
+when: 1615006169.62441
+asMultiple: FALSE
+asStatic: FALSE
