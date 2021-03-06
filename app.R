@@ -162,13 +162,13 @@ server <- function(input, output) {
   output$covid_val1 <- renderValueBox({
     val <-LAPD_subset_COVID() %>%filter(week<10)%>% summarize(count=n())
     
-    valueBox(val,"Arrests the month before cite and release", icon = icon("siren-on"), color = "maroon")
+    valueBox(val,"Arrests the week before cite and release", icon = icon("siren-on"), color = "maroon")
   })
   
   output$covid_val2 <- renderValueBox({
     val <-LAPD_subset_COVID() %>%filter(week>10)%>% summarize(count=n())
     
-    valueBox(val,"Arrests the month after cite and release", icon = icon("viruses"), color = "olive")
+    valueBox(val,"Arrests the week after cite and release", icon = icon("viruses"), color = "olive")
   })
   
   # COVID data table  ----------------------------------------------
