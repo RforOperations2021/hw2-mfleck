@@ -34,16 +34,21 @@ sidebar <- dashboardSidebar(
                 choices = sort(unique(LAPD$`Area Name`)),
                 options = list(`actions-box` = TRUE),
                 multiple = TRUE, 
-                selected = 'Central'),
+                selected = unique(LAPD$`Area Name`)),
     
     # Select variable to group by ----------------------------------
     selectInput(inputId = "group", 
                 label = "Group Arrests by:",
                 choices = c("Race and Ethnicity" = "`Descent Code`", 
                             "Sex" = "`Sex Code`", 
-                            "Arrest Type" = "`Arrest Type Code`"))
+                            "Arrest Type" = "`Arrest Type Code`")),
     
     ### Daily vs weekly
+    switchInput(inputId = "time", 
+                value=TRUE,
+                onLabel= c("date" = "Day"), 
+                offLabel= c("week"= "Week"))
+    
   )
 )
 
@@ -109,13 +114,16 @@ server <- function(input, output) {
   })
 
   # Covid tab --------------------------------------------------------
+  timeval <- reactive({
+    ifelse(input$time==T, "date", "week")
+  })
   output$covid_time <- renderPlotly({
-    ggplot(data = LAPD_subset_COVID(), aes_string(x = 'date', group=input$group, color=input$group)) +
+    ggplot(data = LAPD_subset_COVID(), aes_string(x = timeval(), group=input$group, color=input$group)) +
       geom_point(stat='count') +
       geom_line(stat='count', alpha=0.3) +
       geom_text(aes(label=stat(count)), stat='count', nudge_y=5) +
       theme(axis.text.x = element_text(angle = 45)) +
-      labs(x = 'Date',
+      labs(x = 'Time',
            y = 'Arrest Count',
            title = "Arrests over time"
       )
@@ -171,12 +179,12 @@ server <- function(input, output) {
   # Protest tab -------------------------------------------------------
   
   output$protest_time <- renderPlotly({
-    ggplot(data = LAPD_subset_PROTEST(), aes_string(x = 'date', group=input$group, color=input$group)) +
+    ggplot(data = LAPD_subset_PROTEST(), aes_string(x = timeval(), group=input$group, color=input$group)) +
       geom_point(stat='count') +
       geom_line(stat='count', alpha=0.3) +
       geom_text(aes(label=stat(count)), stat='count', nudge_y=5) +
       theme(axis.text.x = element_text(angle = 45)) +
-      labs(x = 'Date',
+      labs(x = 'Time',
            y = 'Arrest Count',
            title = "Arrests over time"
       )
@@ -216,7 +224,7 @@ server <- function(input, output) {
   output$protest_val1 <- renderValueBox({
     val <-LAPD_subset_PROTEST() %>%filter(week>21 & Charge == '463(A)PC')%>% summarize(count=n())
     
-    valueBox(val,"Arrests for looting (463(A)PC) in the two weeks following the death of George Floyd", color = "maroon")
+    valueBox(val,"Arrests for looting (463(A)PC) in the two weeks following the death of George Floyd", color = "teal")
   })
   
   output$protest_val2 <- renderValueBox({
